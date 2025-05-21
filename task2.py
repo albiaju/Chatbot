@@ -1,15 +1,13 @@
 from typing import Union
 from fastapi import FastAPI
 from pydantic import BaseModel
-import openai
 from dotenv import load_dotenv
 import os
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Load the OpenAI API key safely
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+from task1 import generate_chatgpt_response
 
 app = FastAPI()
 
@@ -24,7 +22,7 @@ async def startup_event():
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Chatbot API powered by ChatGPT 3.5-turbo."}
+    return {"message": "Welcome to the Chatbot API powered by LangChain + OpenAI."}
 
 @app.get("/chat/{question}")
 def get_chat_response(question: str, user: Union[str, None] = None):
@@ -43,22 +41,3 @@ def put_chat_response(chat: ChatRequest):
         "question": chat.question,
         "answer": answer
     }
-def generate_chatgpt_response(question: str) -> str:
-    try:
-        response = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            max_tokens=150,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": question}
-            ],
-            temperature=0.7
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error generating response: {e}"
-
-
-
-
-
